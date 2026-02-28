@@ -9,16 +9,16 @@ namespace Bibliography.Lib.Models
     {
         [Required]
         public CitationStyle CitationStyle { get; set; } = CitationStyle.APA;
-
+        
         [Required]
         public SourceType SourceType { get; set; }
 
         [Required]
         public string Title { get; set; } = string.Empty; 
 
-        public List<Contributor> Contributors { get; set; } = new();
+        public List<Contributor> Contributors { get; set; } = new List<Contributor>();
 
-        public PublicationDate? PublicationDate { get; set; }
+        public PublicationDate? PublicationDate { get; set; }=new PublicationDate { Day=1,Month=1,Year=1900};
 
         public string? Publisher { get; set; }
         public string? DigitalObjectIdentifier { get; set; }

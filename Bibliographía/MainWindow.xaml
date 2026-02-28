@@ -8,16 +8,18 @@
         Title="Bibliographía" Height="500" Width="900">
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
             <!-- Form -->
-            <RowDefinition Height="1*" />
-            <!-- List -->
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+            
             <!-- Output -->
         </Grid.RowDefinitions>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
         <!-- Form Section -->
-        <GroupBox Header="Bibliography Entry" Grid.Row="0" Margin="5">
+        <GroupBox Header="Bibliography Entry" Grid.Row="0" Grid.RowSpan="2" Margin="5">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Auto">
                 <StackPanel Orientation="Vertical" Margin="10">
@@ -28,14 +30,7 @@
 
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Source Type:" Width="80"/>
-                        <ComboBox ItemsSource="{Binding SourceTypes}"
-                              SelectedItem="{Binding CurrentEntry.SourceType}" Width="150"/>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Citation Style:" Width="80"/>
-                        <ComboBox ItemsSource="{Binding CitationStyles}"
-                              SelectedItem="{Binding CurrentEntry.CitationStyle}" Width="150"/>
+                        <ComboBox ItemsSource="{Binding SourceTypes}" SelectedItem="{Binding CurrentEntry.SourceType}" Width="100"/>
                     </StackPanel>
 
                     <!-- Contributors -->
@@ -59,18 +54,31 @@
                         <TextBox Text="{Binding CurrentEntry.PublicationDate.Day}" Width="40"/>
                     </StackPanel>
 
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Publisher:" Width="80"/>
+                        <TextBox Text="{Binding CurrentEntry.Publisher}" Width="200"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Url:" Width="80"/>
+                        <TextBox Text="{Binding CurrentEntry.Url}" Width="200"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Digital Object Identifier:" Width="150"/>
+                        <TextBox Text="{Binding CurrentEntry.DigitalObjectIdentifier}" Width="200"/>
+                    </StackPanel>
                     <!-- CRUD Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
-                        <Button Content="Add" Command="{Binding AddEntryCommand}" Margin="5"/>
-                        <Button Content="Update" Command="{Binding UpdateEntryCommand}" Margin="5"/>
-                        <Button Content="Delete" Command="{Binding DeleteEntryCommand}" Margin="5"/>
+                        <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Margin="5"/>
+                        <!--<Button Content="Update" Command="{Binding UpdateEntryCommand}" Margin="5"/>
+                        <Button Content="Delete" Command="{Binding DeleteEntryCommand}" Margin="5"/>-->
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </GroupBox>
 
         <!-- List Section -->
-        <GroupBox Header="Bibliography Entries" Grid.Row="1" Margin="5">
+        <GroupBox Header="Bibliography Entries" Grid.Row="0" Grid.Column="1" Margin="5">
             <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="200"/>
@@ -82,13 +90,18 @@
         </GroupBox>
 
         <!-- Output Section -->
-        <GroupBox Header="Generated Bibliography" Grid.Row="2" Margin="5">
+        <GroupBox Header="Generated Bibliography" Grid.Row="1" Grid.Column="1" Margin="5">
             <DockPanel>
+                <WrapPanel DockPanel.Dock="Top">
+                    <Label Content="Citation Style:" Width="80"/>
+                    <ComboBox ItemsSource="{Binding CitationStyles}" SelectedItem="{Binding CurrentEntry.CitationStyle}" Width="150"/>
+                </WrapPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
                     <Button Content="Generate Text" Command="{Binding GenerateTextCommand}" Margin="5"/>
                     <Button Content="Generate BibTeX" Command="{Binding GenerateBibTeXCommand}" Margin="5"/>
+                    
                 </StackPanel>
-                <TextBox Text="{Binding GeneratedOutput}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                <TextBox Text="{Binding GeneratedOutput}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
             </DockPanel>
         </GroupBox>
     </Grid>
