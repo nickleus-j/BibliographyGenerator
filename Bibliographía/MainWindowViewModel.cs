@@ -10,35 +10,28 @@ using System.Windows.Input;
 
 namespace Bibliographía
 {
-    public class BibliographyViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
-        // === Properties ===
-        private BibliographyEntry _currentEntry = new BibliographyEntry();
-        public BibliographyEntry CurrentEntry
+        private BibliographyEntryViewModel _currentEntry;
+        public BibliographyEntryViewModel CurrentEntry
         {
             get => _currentEntry;
             set { _currentEntry = value; OnPropertyChanged(); }
         }
-        public DateOnly CurrentPublishDate
-        {
-            get => CurrentEntry.PublicationDate!=null
-                ? DateOnly.FromDateTime(new DateTime(CurrentEntry.PublicationDate.Year, CurrentEntry.PublicationDate.Month ?? 1, CurrentEntry.PublicationDate.Day ?? 1))
-                : DateOnly.FromDateTime(DateTime.Now);
-            set => CurrentEntry.PublicationDate = new PublicationDate { Year = value.Year, Month = value.Month, Day = value.Day };
-        }
-        public ObservableCollection<BibliographyEntry> Entries { get; set; }
-            = new ObservableCollection<BibliographyEntry>();
-
+        public ObservableCollection<BibliographyEntryViewModel> Entries { get; }
+            = new ObservableCollection<BibliographyEntryViewModel>();
         private string _generatedOutput;
         public string GeneratedOutput
         {
             get => _generatedOutput;
             set { _generatedOutput = value; OnPropertyChanged(); }
         }
-
-        public Array SourceTypes => Enum.GetValues(typeof(SourceType));
-        public Array CitationStyles => Enum.GetValues(typeof(CitationStyle));
-
+        private CitationStyle _citationStyle= CitationStyle.APA;
+        public CitationStyle CitationStyle
+        {
+            get => _citationStyle;
+            set { _citationStyle = value; OnPropertyChanged(); }
+        }
         // === Commands ===
         public ICommand AddEntryCommand { get; }
         public ICommand UpdateEntryCommand { get; }
@@ -49,8 +42,10 @@ namespace Bibliographía
         public ICommand GenerateBibTeXCommand { get; }
 
         // === Constructor ===
-        public BibliographyViewModel()
+        public MainWindowViewModel()
         {
+            // Sample items
+            Entries.Add(new BibliographyEntryViewModel(new BibliographyEntry { Title = "Example 1",Publisher="Pub",SourceType=SourceType.Book }));
             AddEntryCommand = new RelayCommand(AddEntry);
             UpdateEntryCommand = new RelayCommand(UpdateEntry, () => CurrentEntry != null);
             DeleteEntryCommand = new RelayCommand(DeleteEntry, () => CurrentEntry != null);
@@ -58,14 +53,14 @@ namespace Bibliographía
             RemoveContributorCommand = new RelayCommand(RemoveContributor);
             GenerateTextCommand = new RelayCommand(GenerateText);
             GenerateBibTeXCommand = new RelayCommand(GenerateBibTeX);
+            CurrentEntry=Entries[0]; // Load first entry for editing
         }
-
         // === CRUD Methods ===
         private void AddEntry()
         {
             Entries.Add(CurrentEntry);
             CitationStyle citationStyle = CurrentEntry.CitationStyle;
-            CurrentEntry = new BibliographyEntry(); // reset form
+            CurrentEntry = new BibliographyEntryViewModel(new BibliographyEntry { Title = "Example 1", Publisher = "Pub", SourceType = SourceType.Book }); // reset form
             CurrentEntry.CitationStyle = citationStyle; // keep selected style
         }
 
@@ -78,12 +73,12 @@ namespace Bibliographía
         private void DeleteEntry()
         {
             Entries.Remove(CurrentEntry);
-            CurrentEntry = new BibliographyEntry();
+            CurrentEntry = new BibliographyEntryViewModel(new BibliographyEntry { Title = "Example 1", Publisher = "Pub", SourceType = SourceType.Book }); // reset form
         }
 
         private void AddContributor()
         {
-            CurrentEntry.Contributors.Add(new Contributor { LastName = "New",FirstName="Write", Role = ContributorRole.Author });
+            CurrentEntry.Contributors.Add(new Contributor { LastName = "New", FirstName = "Write", Role = ContributorRole.Author });
             OnPropertyChanged(nameof(CurrentEntry));
         }
 
@@ -93,21 +88,18 @@ namespace Bibliographía
                 CurrentEntry.Contributors.RemoveAt(CurrentEntry.Contributors.Count - 1);
             OnPropertyChanged(nameof(CurrentEntry));
         }
-
         // === Generation Methods ===
         private void GenerateText()
         {
-            GeneratedOutput = BibliographyFormatter.GetInstance().FormatBibliography(Entries, CurrentEntry.CitationStyle);
+            GeneratedOutput = BibliographyFormatter.GetInstance().FormatBibliography(Entries.Select(e => e._entry), CitationStyle);
         }
 
         private void GenerateBibTeX()
         {
-            GeneratedOutput = BibTexFormatter.GetInstance().ToBibTeX(Entries);
+            GeneratedOutput = BibTexFormatter.GetInstance().ToBibTeX(Entries.Select(e=>e._entry));
         }
-
-        // === INotifyPropertyChanged ===
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
