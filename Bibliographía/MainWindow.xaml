@@ -14,13 +14,20 @@
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <DockPanel Margin="5">
-        <ListBox ItemsSource="{Binding Entries}" DockPanel.Dock="Left" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectedItem="{Binding CurrentEntry, Mode=TwoWay}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <local:BibliographyEntryControl/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <StackPanel DockPanel.Dock="Left">
+            <ListBox ItemsSource="{Binding Entries}" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True" x:Name="ReferenceList">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <WrapPanel>
+                            <Label Content="{Binding Title}" Padding="5"/>
+                            <Label Content="{Binding SourceType}" Padding="5"/>
+                        </WrapPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <local:BibliographyEntryControl DataContext="{Binding ElementName=ReferenceList, Path=SelectedItem}"/>
+        </StackPanel>
+        
         <StackPanel DockPanel.Dock="Top">
             <GroupBox Header="Entries">
                 <StackPanel Orientation="Horizontal">

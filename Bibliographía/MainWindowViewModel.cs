@@ -58,10 +58,11 @@ namespace Bibliographía
         // === CRUD Methods ===
         private void AddEntry()
         {
-            Entries.Add(CurrentEntry);
             CitationStyle citationStyle = CurrentEntry.CitationStyle;
             CurrentEntry = new BibliographyEntryViewModel(new BibliographyEntry { Title = "Example 1", Publisher = "Pub", SourceType = SourceType.Book }); // reset form
             CurrentEntry.CitationStyle = citationStyle; // keep selected style
+            Entries.Add(CurrentEntry);
+            OnPropertyChanged(nameof(Entries));
         }
 
         private void UpdateEntry()
