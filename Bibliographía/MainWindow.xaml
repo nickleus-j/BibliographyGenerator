@@ -14,28 +14,29 @@
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <DockPanel Margin="5">
-        <StackPanel DockPanel.Dock="Left">
-            <ListBox ItemsSource="{Binding Entries}" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True" x:Name="ReferenceList">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <Label Content="{Binding Title}" Padding="5"/>
-                            <Label Content="{Binding SourceType}" Padding="5"/>
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            <local:BibliographyEntryControl DataContext="{Binding ElementName=ReferenceList, Path=SelectedItem}"/>
-        </StackPanel>
-        
-        <StackPanel DockPanel.Dock="Top">
-            <GroupBox Header="Entries">
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Margin="5"/>
-                    <Button Content="Update Entry" Command="{Binding UpdateEntryCommand}" Margin="5"/>
-                    <Button Content="Remove Selected" Command="{Binding RemoveSelectedEntryCommand}" Margin="5"/>
-                </StackPanel>
-            </GroupBox>
+        <ScrollViewer DockPanel.Dock="Left">
+            <StackPanel>
+                <ListBox ItemsSource="{Binding Entries}" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True" x:Name="ReferenceList">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <Label Content="{Binding Title}" Padding="5"/>
+                                <Label Content="{Binding SourceType}" Padding="5"/>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <GroupBox Header="Entries">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Margin="5"/>
+                        <Button Content="Update Entry" Command="{Binding UpdateEntryCommand}" Margin="5"/>
+                        <Button Content="Remove Selected" Command="{Binding RemoveSelectedEntryCommand}" Margin="5"/>
+                    </StackPanel>
+                </GroupBox>
+                <local:BibliographyEntryControl DataContext="{Binding ElementName=ReferenceList, Path=SelectedItem}"/>
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel DockPanel.Dock="Top" Margin="3">
             
             <DockPanel>
                 <WrapPanel DockPanel.Dock="Top">
@@ -50,21 +51,19 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </GroupBox>
+                </WrapPanel>
+                <WrapPanel DockPanel.Dock="Bottom">
                     <Label Content="Citation Style:" Width="80"/>
                     <ComboBox ItemsSource="{Binding Source={x:Static local:CitationStyleEnumValues.All}}" SelectedItem="{Binding CitationStyle}" Width="150"/>
-                    
                 </WrapPanel>
                 
-                
             </DockPanel>
-            
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Bottom">
             <StackPanel Orientation="Horizontal" Margin="5" DockPanel.Dock="Left">
                 <Button Content="Generate Text" Command="{Binding GenerateTextCommand}" Margin="5"/>
                 <Button Content="Generate BibTeX" Command="{Binding GenerateBibTeXCommand}" Margin="5"/>
             </StackPanel>
             <TextBox Text="{Binding GeneratedOutput}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" MinHeight="100"/>
         </StackPanel>
+        
     </DockPanel>
 </Window>
