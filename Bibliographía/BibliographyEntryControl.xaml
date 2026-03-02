@@ -5,92 +5,71 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Bibliographía"
              mc:Ignorable="d" 
-             d:DesignHeight="650" d:DesignWidth="700">
+             d:DesignHeight="550" d:DesignWidth="700">
     <StackPanel Margin="10" Orientation="Vertical">
 
-            <!-- ========================== -->
-            <!-- Title -->
-            <!-- ========================== -->
             <TextBlock Text="Title:" FontWeight="Bold"/>
             <TextBox Text="{Binding Title, Mode=TwoWay}" Margin="0 0 0 10"/>
 
-            <!-- ========================== -->
             <!-- Citation Style -->
-            <!-- ========================== -->
             <TextBlock Text="Citation Style:" FontWeight="Bold" Visibility="Collapsed"/>
-            <ComboBox ItemsSource="{Binding Source={x:Static local:CitationStyleEnumValues.All}}"
+        <ComboBox ItemsSource="{Binding Source={x:Static local:CitationStyleEnumValues.All}}"
                       SelectedItem="{Binding CitationStyle, Mode=TwoWay}" Visibility="Collapsed"
                       Margin="0 0 0 10"/>
-
-            <!-- ========================== -->
-            <!-- Source Type -->
-            <!-- ========================== -->
+        <!-- Source Type -->
             <TextBlock Text="Source Type:" FontWeight="Bold"/>
             <ComboBox ItemsSource="{Binding Source={x:Static local:SourceTypeEnumValues.All}}"
                       SelectedItem="{Binding SourceType, Mode=TwoWay}"
                       Margin="0 0 0 10"/>
 
-            <!-- ========================== -->
             <!-- Contributors -->
-            <!-- ========================== -->
-            <GroupBox Header="Contributors" Margin="0 0 0 10">
-                <StackPanel>
-                    <ItemsControl ItemsSource="{Binding Contributors}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="0 3">
-                                    <TextBox Width="120" Margin="0 0 5 0"
+        <GroupBox Header="Contributors" Margin="0 0 0 10">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding Contributors}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0 3">
+                                <TextBox Width="120" Margin="0 0 5 0"
                                              Text="{Binding FirstName, Mode=TwoWay}"/>
 
-                                    <TextBox Width="120" Margin="0 0 5 0"
+                                <TextBox Width="120" Margin="0 0 5 0"
                                              Text="{Binding LastName, Mode=TwoWay}"/>
 
-                                    <ComboBox Width="120"
+                                <ComboBox Width="120"
                                               ItemsSource="{Binding Source={x:Static local:ContributorRoleEnumValues.All}}"
                                               SelectedItem="{Binding Role, Mode=TwoWay}"/>
 
-                                    <Button Content="X"
+                                <Button Content="X"
                                             Command="{Binding DataContext.RemoveContributorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}" 
                                             Margin="5 0"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-                    <Button Content="Add Contributor"
+                <Button Content="Add Contributor"
                             Command="{Binding AddContributorCommand}"
                             Margin="0 5 0 0"/>
-                </StackPanel>
-            </GroupBox>
-
-            <!-- ========================== -->
-            <!-- Publisher -->
-            <!-- ========================== -->
+            </StackPanel>
+        </GroupBox>
+        <!-- Publisher -->
             <TextBlock Text="Publisher:" FontWeight="Bold"/>
             <TextBox Text="{Binding Publisher, Mode=TwoWay}" Margin="0 0 0 10"/>
 
-            <!-- ========================== -->
             <!-- DOI -->
-            <!-- ========================== -->
             <TextBlock Text="DOI:" FontWeight="Bold"/>
             <TextBox Text="{Binding DigitalObjectIdentifier, Mode=TwoWay}" Margin="0 0 0 10"/>
 
-            <!-- ========================== -->
             <!-- URL -->
-            <!-- ========================== -->
             <TextBlock Text="URL:" FontWeight="Bold"/>
             <TextBox Text="{Binding Url, Mode=TwoWay}" Margin="0 0 0 10"/>
 
-            <!-- ========================== -->
             <!-- Container Title -->
-            <!-- ========================== -->
             <TextBlock Text="Container Title:" FontWeight="Bold"/>
             <TextBox Text="{Binding ContainerTitle, Mode=TwoWay}" Margin="0 0 0 10"/>
 
-            <!-- ========================== -->
             <!-- Volume / Issue / Pages -->
-            <!-- ========================== -->
             <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
                 <StackPanel Width="150">
                     <TextBlock Text="Volume:" FontWeight="Bold"/>
@@ -108,9 +87,7 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- ========================== -->
             <!-- Publication Date -->
-            <!-- ========================== -->
             <GroupBox Header="Publication Date" Margin="0 0 0 10">
                 <StackPanel Orientation="Horizontal" Margin="5">
 
@@ -132,9 +109,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <!-- ========================== -->
             <!-- Access Date -->
-            <!-- ========================== -->
             <TextBlock Text="Access Date:" FontWeight="Bold"/>
             <DatePicker SelectedDate="{Binding AccessDate, Mode=TwoWay}"/>
 

@@ -27,7 +27,7 @@ namespace Bibliography.Lib.Tests.Formatters
             {
                 Title = title,
                 Publisher = publisher,
-                PublicationDate = new PublicationDate{Day = 3, Month = 4, Year = year},
+                PublicationDate = new PublicationDate { Day = 3, Month = 4, Year = year },
                 CitationStyle = style,
                 Contributors = contributors ?? new List<Contributor>
                 {
@@ -245,12 +245,12 @@ namespace Bibliography.Lib.Tests.Formatters
             };
 
             // Act
-            var result = formatter.FormatBibliography(entries,CitationStyle.MLA);
+            var result = formatter.FormatBibliography(entries, CitationStyle.MLA);
 
             // Assert
             var authorIndex = result.IndexOf("Author");
             var editorIndex = result.IndexOf("Editor");
-            Assert.True(authorIndex < editorIndex || editorIndex<0, $"Author should come before editor without author");
+            Assert.True(authorIndex < editorIndex || editorIndex < 0, $"Author should come before editor without author");
         }
 
         #endregion
@@ -459,51 +459,456 @@ namespace Bibliography.Lib.Tests.Formatters
 
         #region FormatBibliography - IEEE Format Tests
 
+        #region IEEE Single Author Tests
+
         [Fact]
-        public void FormatBibliography_IEEE_SingleAuthor()
+        public void FormatBibliography_IeeeWithSingleAuthor_ReturnsCorrectFormat()
         {
             // Arrange
             var formatter = GetFormatter();
             var entry = CreateTestEntry(
-                title: "Machine Learning Basics",
-                publisher: "IEEE Press",
-                year: 2023,
+                title: "Introduction to Networks",
+                publisher: "Cisco Press",
+                year: 2020,
                 style: CitationStyle.IEEE,
                 contributors: new List<Contributor>
                 {
-                    CreateContributor("John", "Doe", ContributorRole.Author)
-                });
-            var entries = new List<BibliographyEntry> { entry };
+                CreateContributor("Andrew", "Tanenbaum", ContributorRole.Author)
+                }
+            );
 
             // Act
-            var result = formatter.FormatBibliography(entries);
+            var result = formatter.FormatBibliography(new[] { entry });
 
             // Assert
             Assert.Contains("[1]", result);
-            Assert.Contains("J. Doe", result);
-            Assert.Contains("Machine Learning Basics", result);
+            Assert.Contains("A. Tanenbaum", result);
+            Assert.Contains("\"Introduction to Networks,\"", result);
+            Assert.Contains("Cisco Press", result);
+            Assert.Contains("2020", result);
         }
 
         [Fact]
-        public void FormatBibliography_IEEE_TwoAuthors()
+        public void FormatBibliography_IeeeWithSingleAuthorNoFirstName_ReturnsLastNameOnly()
         {
             // Arrange
             var formatter = GetFormatter();
             var entry = CreateTestEntry(
-                style: CitationStyle.IEEE,
                 contributors: new List<Contributor>
                 {
-                    CreateContributor("John", "Doe", ContributorRole.Author),
-                    CreateContributor("Jane", "Smith", ContributorRole.Author)
-                });
-            var entries = new List<BibliographyEntry> { entry };
+                new Contributor { FirstName = "", LastName = "Anonymous", Role = ContributorRole.Author }
+                }
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry }, CitationStyle.IEEE);
+
+            // Assert
+            Assert.Contains("[1] Anonymous,", result);
+        }
+
+        #endregion
+
+        #region IEEE Two Authors Tests
+
+        [Fact]
+        public void FormatBibliography_IeeeWithTwoAuthors_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(
+                title: "Computer Networking",
+                publisher: "Pearson",
+                year: 2019,
+                contributors: new List<Contributor>
+                {
+                CreateContributor("James", "Kurose", ContributorRole.Author),
+                CreateContributor("Keith", "Ross", ContributorRole.Author)
+                },style: CitationStyle.IEEE
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.Contains("[1]", result);
+            Assert.Contains("J. Kurose", result);
+            Assert.Contains("and K. Ross", result);
+            Assert.DoesNotContain("et al.", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithTwoAuthorsAndNonAuthorContributor_IgnoresNonAuthors()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(
+                contributors: new List<Contributor>
+                {
+                CreateContributor("John", "Smith", ContributorRole.Author),
+                CreateContributor("Jane", "Doe", ContributorRole.Author),
+                CreateContributor("Editor", "Name", ContributorRole.Editor)
+                },style: CitationStyle.IEEE
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.Contains("J. Smith and J. Doe", result);
+            Assert.DoesNotContain("Editor", result);
+        }
+
+        #endregion
+
+        #region IEEE Three to Six Authors Tests
+
+        [Fact]
+        public void FormatBibliography_IeeeWithThreeAuthors_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(
+                contributors: new List<Contributor>
+                {
+                CreateContributor("Alice", "Johnson", ContributorRole.Author),
+                CreateContributor("Bob", "Smith", ContributorRole.Author),
+                CreateContributor("Charlie", "Brown", ContributorRole.Author)
+                },style:CitationStyle.IEEE
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.Contains("[1]", result);
+            Assert.Contains("A. Johnson, B. Smith, and C. Brown", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithFourAuthors_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(
+                contributors: new List<Contributor>
+                {
+                CreateContributor("Author", "One", ContributorRole.Author),
+                CreateContributor("Author", "Two", ContributorRole.Author),
+                CreateContributor("Author", "Three", ContributorRole.Author),
+                CreateContributor("Author", "Four", ContributorRole.Author)
+                },style:CitationStyle.IEEE
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert 
+            Assert.Contains("A. One, A. Two, A. Three, and A. Four", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithSixAuthors_ReturnsAllAuthorsWithoutEtAl()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(
+                contributors: new List<Contributor>
+                {
+                CreateContributor("First", "One", ContributorRole.Author),
+                CreateContributor("Second", "Two", ContributorRole.Author),
+                CreateContributor("Third", "Three", ContributorRole.Author),
+                CreateContributor("Fourth", "Four", ContributorRole.Author),
+                CreateContributor("Fifth", "Five", ContributorRole.Author),
+                CreateContributor("Sixth", "Six", ContributorRole.Author)
+                }
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry }, CitationStyle.IEEE);
+
+            // Assert
+            Assert.Contains("F. One, S. Two, T. Three, F. Four, F. Five, and S. Six", result);
+            Assert.DoesNotContain("et al.", result);
+        }
+
+        #endregion
+
+        #region IEEE Seven or More Authors Tests
+
+        [Fact]
+        public void FormatBibliography_IeeeWithSevenAuthors_ReturnsEtAl()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(
+                title: "Large Collaborative Research",
+                contributors: new List<Contributor>
+                {
+                CreateContributor("First", "Author", ContributorRole.Author),
+                CreateContributor("Second", "Author", ContributorRole.Author),
+                CreateContributor("Third", "Author", ContributorRole.Author),
+                CreateContributor("Fourth", "Author", ContributorRole.Author),
+                CreateContributor("Fifth", "Author", ContributorRole.Author),
+                CreateContributor("Sixth", "Author", ContributorRole.Author),
+                CreateContributor("Seventh", "Author", ContributorRole.Author)
+                }
+            );
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry },CitationStyle.IEEE);
+
+            // Assert
+            Assert.Contains("[1]", result);
+            Assert.Contains("F. Author et al.", result);
+            Assert.DoesNotContain("Second", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithTenAuthors_ReturnsEtAlWithFirstAuthorOnly()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var contributors = Enumerable.Range(1, 10)
+                .Select(i => CreateContributor($"Author{i}", $"Last{i}", ContributorRole.Author))
+                .ToList();
+
+            var entry = CreateTestEntry(contributors: contributors);
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry }, CitationStyle.IEEE);
+
+            // Assert
+            Assert.Contains("A. Last1 et al.", result);
+            Assert.DoesNotContain("Author2", result);
+        }
+
+        #endregion
+
+        #region IEEE Citation Number Tests
+
+        [Fact]
+        public void FormatBibliography_IeeeWithMultipleEntries_AssignsCorrectCitationNumbers()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entries = new[]
+            {
+            CreateTestEntry(title: "First Book", contributors: new List<Contributor>
+            {
+                CreateContributor("John", "Smith", ContributorRole.Author)
+            }),
+            CreateTestEntry(title: "Second Book", contributors: new List<Contributor>
+            {
+                CreateContributor("Jane", "Doe", ContributorRole.Author)
+            }),
+            CreateTestEntry(title: "Third Book", contributors: new List<Contributor>
+            {
+                CreateContributor("Bob", "Johnson", ContributorRole.Author)
+            })
+        };
+
+            // Act
+            var result = formatter.FormatBibliography(entries,CitationStyle.IEEE);
+
+            // Assert
+            Assert.Contains("[1] J. Smith", result);
+            Assert.Contains("[2] J. Doe", result);
+            Assert.Contains("[3] B. Johnson", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithSingleEntry_StartsWithBracketOne()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry();
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry }, CitationStyle.IEEE);
+
+            // Assert
+            Assert.StartsWith("[1]", result);
+        }
+
+        #endregion
+
+        #region IEEE Title and Publisher Tests
+
+        [Fact]
+        public void FormatBibliography_IeeeWithTitleContainingSpecialCharacters_IncludesInQuotes()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(title: "C++ Programming: Principles & Practice");
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry }, CitationStyle.IEEE);
+
+            // Assert
+            Assert.Contains("\"C++ Programming: Principles & Practice,\"", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithPublisher_IncludedInOutput()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(publisher: "MIT Press");
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.Contains("MIT Press", result);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithYear_IncludedAtEnd()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(year: 2021,style:CitationStyle.IEEE);
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.EndsWith("2021.", result);
+        }
+
+        #endregion
+
+        #region IEEE Sorting Tests
+
+        [Fact]
+        public void FormatBibliography_IeeeWithUnsortedEntries_SortsByAuthorLastName()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entries = new[]
+            {
+            CreateTestEntry(title: "Zebra Book", contributors: new List<Contributor>
+            {
+                CreateContributor("Zoe", "Zhang", ContributorRole.Author)
+            }),
+            CreateTestEntry(title: "Apple Book", contributors: new List<Contributor>
+            {
+                CreateContributor("Alice", "Adams", ContributorRole.Author)
+            }),
+            CreateTestEntry(title: "Mango Book", contributors: new List<Contributor>
+            {
+                CreateContributor("Mike", "Miller", ContributorRole.Author)
+            })
+        };
+
+            // Act
+            var result = formatter.FormatBibliography(entries,CitationStyle.IEEE);
+
+            // Assert
+            var lines = result.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            Assert.Contains("A. Adams", lines[2]);
+            Assert.Contains("M. Miller", lines[4]);
+            Assert.Contains("Z. Zhang", lines[0]);
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithNoAuthor_SortsByTitle()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entries = new[]
+            {
+            CreateTestEntry(title: "Zebra Title", contributors: new List<Contributor>
+            {
+                CreateContributor("Name", "Contributor", ContributorRole.Editor)
+            }),
+            CreateTestEntry(title: "Apple Title", contributors: new List<Contributor>
+            {
+                CreateContributor("Name", "Contributor", ContributorRole.Editor)
+            })
+        };
 
             // Act
             var result = formatter.FormatBibliography(entries);
 
             // Assert
-            Assert.Contains("J. Doe and J. Smith", result);
+            var lines = result.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            Assert.Contains("Apple Title", lines[0]);
+            Assert.Contains("Zebra Title", lines[2]);
         }
+
+        #endregion
+
+        #region IEEE Format Structure Tests
+
+
+        [Fact]
+        public void FormatBibliography_IeeeWithMultipleEntries_SeparatedByBlankLines()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entries = new[]
+            {
+            CreateTestEntry(title: "First"),
+            CreateTestEntry(title: "Second")
+        };
+
+            // Act
+            var result = formatter.FormatBibliography(entries);
+
+            // Assert
+            Assert.Contains(Environment.NewLine + Environment.NewLine, result);
+        }
+
+        #endregion
+
+        #region IEEE Edge Cases
+
+        [Fact]
+        public void FormatBibliography_IeeeWithNullYear_HandlesGracefully()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = new BibliographyEntry
+            {
+                Title = "Test Title",
+                Publisher = "Test Publisher",
+                PublicationDate = null,
+                CitationStyle = CitationStyle.IEEE,
+                Contributors = new List<Contributor>
+            {
+                CreateContributor("John", "Doe", ContributorRole.Author)
+            }
+            };
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.Contains("[1]", result);
+            // Should handle null year gracefully
+            Assert.DoesNotContain("null", result.ToLower());
+        }
+
+        [Fact]
+        public void FormatBibliography_IeeeWithEmptyAuthorList_ReturnsUnknownAuthor()
+        {
+            // Arrange
+            var formatter = GetFormatter();
+            var entry = CreateTestEntry(contributors: new List<Contributor>
+        {
+            CreateContributor("Editor", "Name", ContributorRole.Editor)
+        });
+
+            // Act
+            var result = formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.Contains("Unknown Author", result);
+        }
+
+        #endregion
         #endregion
     }
 }

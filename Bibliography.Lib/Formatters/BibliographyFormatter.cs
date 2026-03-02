@@ -26,62 +26,27 @@ namespace Bibliography.Lib.Formatters
             return Instance;
         }
 
-        public string FormatCitation(BibliographyEntry entry)
-        {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-
-            var contributors = string.Join(", ",
-                entry.Contributors.Select(c =>
-                    $"{c.LastName}, {c.FirstName} ({c.Role})"));
-
-            string date = entry.PublicationDate != null
-                ? $"{entry.PublicationDate.Year}" +
-                  (entry.PublicationDate.Month.HasValue ? $"-{entry.PublicationDate.Month.Value:D2}" : "") +
-                  (entry.PublicationDate.Day.HasValue ? $"-{entry.PublicationDate.Day.Value:D2}" : "")
-                : "n.d.";
-
-            switch (entry.CitationStyle)
-            {
-                case CitationStyle.APA:
-                    return $"{contributors} ({date}). {entry.Title}. {entry.Publisher ?? entry.ContainerTitle ?? ""}{(entry.DigitalObjectIdentifier != null ? $" doi:{entry.DigitalObjectIdentifier}" : "")}{(entry.Url != null ? $" Retrieved from {entry.Url}" : "")}";
-
-                case CitationStyle.MLA:
-                    return $"{contributors}. \"{entry.Title}.\" {(entry.ContainerTitle ?? entry.Publisher ?? "")}, {date}.{(entry.Pages != null ? $" pp. {entry.Pages}" : "")}{(entry.Url != null ? $" {entry.Url}" : "")}";
-
-                case CitationStyle.Chicago:
-                    return $"{contributors}. {entry.Title}. {(entry.Publisher ?? entry.ContainerTitle ?? "")}, {date}.{(entry.DigitalObjectIdentifier != null ? $" doi:{entry.DigitalObjectIdentifier}" : "")}{(entry.Url != null ? $" {entry.Url}" : "")}";
-
-                case CitationStyle.Harvard:
-                    return $"{contributors} ({date}) {entry.Title}. {(entry.Publisher ?? entry.ContainerTitle ?? "")}.{(entry.Url != null ? $" Available at: {entry.Url}" : "")}{(entry.AccessDate.HasValue ? $" (Accessed: {entry.AccessDate.Value:yyyy-MM-dd})" : "")}";
-
-                case CitationStyle.IEEE:
-                    return $"{contributors}, \"{entry.Title},\" {(entry.ContainerTitle ?? entry.Publisher ?? "")}, {date}.{(entry.DigitalObjectIdentifier != null ? $" doi:{entry.DigitalObjectIdentifier}" : "")}{(entry.Url != null ? $" {entry.Url}" : "")}";
-
-                default:
-                    return $"{contributors}. {entry.Title}. {date}.";
-            }
-        }
-
         public string FormatBibliography(IEnumerable<BibliographyEntry> entries, CitationStyle? styleOverride = null)
         {
             if (entries == null) throw new ArgumentNullException(nameof(entries));
             if (!entries.Any()) return "No entries provided.";
 
-            var sortedEntries = entries
+            var sortedEntries = styleOverride== CitationStyle.IEEE? entries.ToList(): entries
                 .OrderBy(e => e.Contributors.FirstOrDefault(c => c.Role == ContributorRole.Author)?.LastName ?? e.Title)
                 .ToList();
 
             var sb = new StringBuilder();
 
-            foreach (var entry in sortedEntries)
+            for(int i=0;i< sortedEntries.Count;i++)
             {
+                var entry = sortedEntries.ElementAt(i);
                 var targetStyle = styleOverride ?? entry.CitationStyle;
 
                 string formattedEntry = targetStyle switch
                 {
                     CitationStyle.APA => FormatApa(entry),
                     CitationStyle.MLA => FormatMla(entry),
-                    CitationStyle.IEEE => FormatIeee(entry),
+                    CitationStyle.IEEE => FormatIeee(entry,i+1),
                     CitationStyle.Chicago => FormatChicago(entry),
                     CitationStyle.Harvard => FormatHarvard(entry),
                     _ => FormatApa(entry)
@@ -111,10 +76,10 @@ namespace Bibliography.Lib.Formatters
             return $"{authorString}. {entry.Title}. {entry.Publisher}, {entry.PublicationDate?.Year}.";
         }
 
-        private string FormatIeee(BibliographyEntry entry)
+        private string FormatIeee(BibliographyEntry entry,int index)
         {
             var authorString = FormatAuthors(entry, CitationStyle.IEEE);
-            return $"[1] {authorString}, \"{entry.Title},\" {entry.Publisher}, {entry.PublicationDate?.Year}.";
+            return $"[{index}] {authorString}, \"{entry.Title},\" {entry.Publisher}, {entry.PublicationDate?.Year}.";
         }
 
         private string FormatChicago(BibliographyEntry entry)
@@ -190,7 +155,7 @@ namespace Bibliography.Lib.Formatters
             var allExceptLast = string.Join(", ", formattedNames.Take(formattedNames.Count - 1));
             var lastAuthor = formattedNames.Last();
 
-            return $"{allExceptLast} and {lastAuthor}";
+            return formattedNames.Count==2? $"{allExceptLast} and {lastAuthor}" : $"{allExceptLast}, and {lastAuthor}";
         }
 
         private string FormatChicagoAuthors(List<Contributor> authors)
@@ -233,13 +198,6 @@ namespace Bibliography.Lib.Formatters
         #endregion
 
         #region Private Methods - Helpers
-
-        private Contributor GetPrimaryAuthor(BibliographyEntry entry)
-        {
-            return entry.Contributors.FirstOrDefault(c => c.Role == ContributorRole.Author)
-                   ?? new Contributor() { LastName = "Unknown Author" };
-        }
-
         private string GetIeeeName(Contributor author)
         {
             if (string.IsNullOrWhiteSpace(author.FirstName))

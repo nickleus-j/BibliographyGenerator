@@ -14,7 +14,7 @@
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <DockPanel Margin="5">
-        <ScrollViewer DockPanel.Dock="Left">
+        <ScrollViewer DockPanel.Dock="Left" FontFamily="Century Gothic">
             <StackPanel>
                 <ListBox ItemsSource="{Binding Entries}" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True" x:Name="ReferenceList">
                     <ListBox.ItemTemplate>
@@ -42,7 +42,7 @@
                 <WrapPanel DockPanel.Dock="Top">
                     <!-- List Section -->
                     <GroupBox Header="Bibliography Entries" Grid.Row="0" Grid.Column="1" Margin="5">
-                        <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True" FontFamily="Consolas">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="200"/>
                                 <DataGridTextColumn Header="Source Type" Binding="{Binding SourceType}" Width="100"/>
@@ -54,15 +54,15 @@
                 </WrapPanel>
                 <WrapPanel DockPanel.Dock="Bottom">
                     <Label Content="Citation Style:" Width="80"/>
-                    <ComboBox ItemsSource="{Binding Source={x:Static local:CitationStyleEnumValues.All}}" SelectedItem="{Binding CitationStyle}" Width="150"/>
+                    <ComboBox ItemsSource="{Binding Source={x:Static local:CitationStyleEnumValues.All}}" SelectedItem="{Binding CitationStyle}" Width="150" FontFamily="Segoe UI Semibold"/>
                 </WrapPanel>
                 
             </DockPanel>
             <StackPanel Orientation="Horizontal" Margin="5" DockPanel.Dock="Left">
-                <Button Content="Generate Text" Command="{Binding GenerateTextCommand}" Margin="5"/>
-                <Button Content="Generate BibTeX" Command="{Binding GenerateBibTeXCommand}" Margin="5"/>
+                <Button Content="Generate Text" Command="{Binding GenerateTextCommand}" Margin="5" FontSize="16"/>
+                <Button Content="Generate BibTeX" Command="{Binding GenerateBibTeXCommand}" Margin="5" FontSize="16"/>
             </StackPanel>
-            <TextBox Text="{Binding GeneratedOutput}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" MinHeight="100"/>
+            <TextBox Text="{Binding GeneratedOutput}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True" MinHeight="100" FontFamily="Courier New"/>
         </StackPanel>
         
     </DockPanel>
