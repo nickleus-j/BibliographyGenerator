@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Bibliography.Lib/Bibliography.Lib.csproj" />
   <Project Path="Bibliographía/Bibliographía.csproj" />
+  <Project Path="Bibliogrphy.Lib.Tests/Bibliogrphy.Lib.Tests.csproj" Id="88ee3db9-c451-4cd8-96a9-4ba36d96862a" />
 </Solution>
