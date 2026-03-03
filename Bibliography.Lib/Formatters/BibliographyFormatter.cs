@@ -160,7 +160,7 @@ namespace Bibliography.Lib.Formatters
 
         private string FormatChicagoAuthors(List<Contributor> authors)
         {
-            if (authors.Count >= 10)
+            if (authors.Count >= 7)
             {
                 var firstSeven = authors.Take(7).Select((a, i) => i == 0 ? $"{a.LastName}, {a.FirstName}" : $"{a.FirstName} {a.LastName}");
                 return string.Join(", ", firstSeven) + ", et al.";

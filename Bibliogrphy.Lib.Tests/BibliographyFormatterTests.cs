@@ -11,7 +11,12 @@ namespace Bibliography.Lib.Tests.Formatters
     public class BibliographyFormatterTests
     {
         #region Setup & Helpers
+        private readonly BibliographyFormatter _formatter;
 
+        public BibliographyFormatterTests()
+        {
+            _formatter = GetFormatter();
+        }
         private BibliographyFormatter GetFormatter()
         {
             return BibliographyFormatter.GetInstance();
@@ -1415,5 +1420,312 @@ namespace Bibliography.Lib.Tests.Formatters
         }
 
         #endregion
+         [Fact]
+    public void FormatChicago_SingleAuthor_FormatsCorrectly()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "The Great Gatsby",
+            publisher: "Scribner",
+            year: 1925,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>
+            {
+                CreateContributor("F. Scott", "Fitzgerald", ContributorRole.Author)
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.Equal("Fitzgerald, F. Scott. The Great Gatsby. Scribner, 1925.", result);
+    }
+
+    [Fact]
+    public void FormatChicago_TwoAuthors_FormatsCorrectly()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "A Collaborative Work",
+            publisher: "Academic Press",
+            year: 2020,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>
+            {
+                CreateContributor("Jane", "Smith", ContributorRole.Author),
+                CreateContributor("John", "Doe", ContributorRole.Author)
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.Equal("Smith, Jane, and John Doe", result.Split(new[] { "." }, StringSplitOptions.None)[0]);
+    }
+
+    [Fact]
+    public void FormatChicago_ThreeAuthors_FormatsCorrectly()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "Three Author Book",
+            publisher: "Publishing House",
+            year: 2021,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>
+            {
+                CreateContributor("Alice", "Johnson", ContributorRole.Author),
+                CreateContributor("Bob", "Williams", ContributorRole.Author),
+                CreateContributor("Charlie", "Brown", ContributorRole.Author)
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.Equal("Johnson, Alice, Bob Williams, and Charlie Brown.", result.Split(new[] {" T" }, StringSplitOptions.None)[0]);
+    }
+
+    [Fact]
+    public void FormatChicago_NineAuthors_FormatsCorrectly()
+    {
+        // Arrange
+        var contributors = new List<Contributor>
+        {
+            CreateContributor("Author", "One", ContributorRole.Author),
+            CreateContributor("Author", "Two", ContributorRole.Author),
+            CreateContributor("Author", "Three", ContributorRole.Author),
+            CreateContributor("Author", "Four", ContributorRole.Author),
+            CreateContributor("Author", "Five", ContributorRole.Author),
+            CreateContributor("Author", "Six", ContributorRole.Author),
+            CreateContributor("Author", "Seven", ContributorRole.Author),
+            CreateContributor("Author", "Eight", ContributorRole.Author),
+            CreateContributor("Author", "Nine", ContributorRole.Author)
+        };
+
+        var entry = CreateTestEntry(
+            title: "Nine Author Work",
+            publisher: "Big Publisher",
+            year: 2022,
+            style: CitationStyle.Chicago,
+            contributors: contributors
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.Equal("One, Author, Author Two, Author Three, Author Four, Author Five, Author Six, Author Seven, et al", result.Split(".", StringSplitOptions.None)[0]);
+    }
+
+    [Fact]
+    public void FormatChicago_TenAuthors_FormatsWithEtAl()
+    {
+        // Arrange
+        var contributors = new List<Contributor>();
+        for (int i = 1; i <= 10; i++)
+        {
+            contributors.Add(CreateContributor($"Author{i}", $"Name{i}", ContributorRole.Author));
+        }
+
+        var entry = CreateTestEntry(
+            title: "Ten Author Work",
+            publisher: "Publisher",
+            year: 2023,
+            style: CitationStyle.Chicago,
+            contributors: contributors
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        var firstLine = result.Split(new[] { Environment.NewLine }, StringSplitOptions.None)[0];
+        Assert.Contains("et al.", firstLine);
+        Assert.StartsWith("Name1, Author1", firstLine);
+    }
+
+    [Fact]
+    public void FormatChicago_NoAuthors_UsesUnknownAuthor()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "Anonymous Work",
+            publisher: "Mystery Press",
+            year: 2023,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>()
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.StartsWith("Unknown Author", result);
+    }
+
+    [Fact]
+    public void FormatChicago_WithNullPublicationDate_HandlesGracefully()
+    {
+        // Arrange
+        var entry = new BibliographyEntry
+        {
+            Title = "Undated Work",
+            Publisher = "Some Publisher",
+            PublicationDate = null,
+            CitationStyle = CitationStyle.Chicago,
+            Contributors = new List<Contributor>
+            {
+                CreateContributor("John", "Smith", ContributorRole.Author)
+            }
+        };
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.Contains("Smith, John", result);
+        Assert.Contains("Undated Work", result);
+    }
+
+    [Fact]
+    public void FormatChicago_MultipleEntries_SortsAlphabetically()
+    {
+        // Arrange
+        var entries = new[]
+        {
+            CreateTestEntry(
+                title: "Zebra Book",
+                publisher: "Publisher",
+                year: 2023,
+                style: CitationStyle.Chicago,
+                contributors: new List<Contributor>
+                {
+                    CreateContributor("Zachary", "Wilson", ContributorRole.Author)
+                }
+            ),
+            CreateTestEntry(
+                title: "Apple Book",
+                publisher: "Publisher",
+                year: 2023,
+                style: CitationStyle.Chicago,
+                contributors: new List<Contributor>
+                {
+                    CreateContributor("Alice", "Anderson", ContributorRole.Author)
+                }
+            )
+        };
+
+        // Act
+        var result = _formatter.FormatBibliography(entries);
+
+        // Assert
+        var lines = result.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+        Assert.StartsWith("Anderson, Alice", lines[0]);
+        Assert.StartsWith("Wilson, Zachary", lines[1]);
+    }
+
+    [Fact]
+    public void FormatChicago_WithStyleOverride_UsesOverrideStyle()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "Test Book",
+            publisher: "Test Publisher",
+            year: 2023,
+            style: CitationStyle.APA, // Original style is APA
+            contributors: new List<Contributor>
+            {
+                CreateContributor("John", "Doe", ContributorRole.Author)
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry }, CitationStyle.Chicago);
+
+        // Assert
+        Assert.Equal("Doe, John. Test Book. Test Publisher, 2023.", result);
+    }
+
+    [Fact]
+    public void FormatChicago_AuthorWithoutFirstName_HandlesGracefully()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "Mysterious Work",
+            publisher: "Publisher",
+            year: 2023,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>
+            {
+                new Contributor { FirstName = null, LastName = "Mononymous", Role = ContributorRole.Author }
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.Contains("Mononymous", result);
+    }
+
+    [Fact]
+    public void FormatChicago_FourAuthors_FormatsWithCommaAndAnd()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "Four Author Work",
+            publisher: "Publisher",
+            year: 2023,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>
+            {
+                CreateContributor("First", "Author", ContributorRole.Author),
+                CreateContributor("Second", "Author", ContributorRole.Author),
+                CreateContributor("Third", "Author", ContributorRole.Author),
+                CreateContributor("Fourth", "Author", ContributorRole.Author)
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        var firstLine = result.Split(new[] { Environment.NewLine }, StringSplitOptions.None)[0];
+        Assert.StartsWith("Author, First", firstLine);
+        Assert.Contains("Second Author", firstLine);
+        Assert.Contains("Third Author", firstLine);
+        Assert.Contains(", and Fourth Author.", firstLine);
+    }
+
+    [Fact]
+    public void FormatChicago_NonAuthorContributors_AreIgnored()
+    {
+        // Arrange
+        var entry = CreateTestEntry(
+            title: "Work with Contributors",
+            publisher: "Publisher",
+            year: 2023,
+            style: CitationStyle.Chicago,
+            contributors: new List<Contributor>
+            {
+                CreateContributor("John", "Doe", ContributorRole.Author),
+                CreateContributor("Jane", "Editor", ContributorRole.Editor),
+                CreateContributor("Jim", "Translator", ContributorRole.Translator)
+            }
+        );
+
+        // Act
+        var result = _formatter.FormatBibliography(new[] { entry });
+
+        // Assert
+        Assert.StartsWith("Doe, John.", result);
+        Assert.DoesNotContain("Editor", result);
+        Assert.DoesNotContain("Translator", result);
+    }
+
     }
 }
