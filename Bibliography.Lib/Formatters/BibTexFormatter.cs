@@ -141,6 +141,11 @@ namespace Bibliography.Lib.Formatters
                     sb.Length -= 2; // Remove ",\r\n"
                     sb.AppendLine();
                 }
+                if (sb.Length > 0 && sb[sb.Length - 3] == ',')
+                {
+                    sb.Length -= 3; // Remove ",\r\n"
+                    sb.AppendLine();
+                }
             }
 
             sb.AppendLine("}");

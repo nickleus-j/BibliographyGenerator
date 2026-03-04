@@ -423,7 +423,7 @@ namespace Bibliography.Lib.Tests
             };
 
             // Act
-            var result = _formatter.ToBibTeX(entries);
+            var result = _formatter.ToBibTeX(entries).Replace("\r\n","\n");
 
             // Assert
             Assert.Contains("year = {2023}\n}", result); // No comma before closing brace
