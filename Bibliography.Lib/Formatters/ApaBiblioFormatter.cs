@@ -28,6 +28,7 @@ public class ApaBiblioFormatter:IBibliographyStyleFormatter
             SourceType.Book => FormatApaBooks(entry),
             SourceType.Website => FormatApaWebsite(entry),
             SourceType.Journal => FormatApaJournalArticle(entry),
+            SourceType.Report=> FormatApaTechnicalReport(entry),
             _ => FormatApaBooks(entry)
         };
     }
@@ -61,6 +62,17 @@ public class ApaBiblioFormatter:IBibliographyStyleFormatter
         var pages = entry.Pages ?? "";
         var doi = !string.IsNullOrEmpty(entry.DigitalObjectIdentifier) ? $" https://doi.org/{entry.DigitalObjectIdentifier}" : "";
         return $"{authorString} ({year}). {entry.Title}. {volume}{issue}, {pages}.{doi}";
+    }
+    private string FormatApaTechnicalReport(BibliographyEntry entry)
+    {
+        var authorString = FormatAuthors(entry.Contributors.Where(c => c.Role == ContributorRole.Author).ToList());
+        var year = entry.PublicationDate?.Year.ToString() ?? "n.d.";
+        
+        // Reports often have a specific report number
+        var reportInfo = !string.IsNullOrEmpty(entry.Issue) ? $" ({entry.Issue})" : "";
+        var publisher = entry.Publisher ?? "Author"; // Often the organization is the publisher
+
+        return $"{authorString} ({year}). {entry.Title}{reportInfo}. {publisher}.";
     }
     private string FormatAuthors(List<Contributor> authors)
     {

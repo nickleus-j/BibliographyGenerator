@@ -346,46 +346,96 @@ namespace Bibliography.Lib.Tests.Formatters
         }
 
         [Fact]
-        public void FormatBibliography_APA_TwoAuthors()
+        public void FormatBibliography_ShouldSortByAuthorLastName()
         {
             // Arrange
-            var formatter = GetFormatter();
-            var entry = CreateTestEntry(
-                style: CitationStyle.APA,
-                contributors: new List<Contributor>
-                {
-                    CreateContributor("John", "Doe", ContributorRole.Author),
-                    CreateContributor("Jane", "Smith", ContributorRole.Author)
-                });
-            var entries = new List<BibliographyEntry> { entry };
+            var entries = new List<BibliographyEntry>
+            {
+                
+                CreateTestEntry(
+                    title: "A Title",
+                    publisher: "Tech Books",
+                    year: 2023,
+                    style: CitationStyle.APA,
+                    contributors: new List<Contributor>
+                    {
+                        CreateContributor("Bert", "Zebra", ContributorRole.Author)
+                    }),
+                CreateTestEntry(
+                    title: "B Title",
+                    publisher: "Tech Books",
+                    year: 2023,
+                    style: CitationStyle.APA,
+                    contributors: new List<Contributor>
+                    {
+                        CreateContributor("Bert", "Alpha", ContributorRole.Author)
+                    })
+            };
 
             // Act
-            var result = formatter.FormatBibliography(entries);
+            var result = _formatter.FormatBibliography(entries);
 
             // Assert
-            Assert.Contains("Doe, J., & Smith, J.", result);
+            Assert.StartsWith("Alpha", result); // Alpha should come before Zebra
         }
 
         [Fact]
-        public void FormatBibliography_APA_ThreeOrMoreAuthors()
+        public void FormatApaTechnicalReport_ShouldIncludeReportNumber()
         {
             // Arrange
-            var formatter = GetFormatter();
-            var entry = CreateTestEntry(
-                style: CitationStyle.APA,
-                contributors: new List<Contributor>
-                {
-                    CreateContributor("John", "Doe", ContributorRole.Author),
-                    CreateContributor("Jane", "Smith", ContributorRole.Author),
-                    CreateContributor("Bob", "Johnson", ContributorRole.Author)
-                });
-            var entries = new List<BibliographyEntry> { entry };
+            var entry = new BibliographyEntry
+            {
+                SourceType = SourceType.Report,
+                Title = "Annual Safety Report",
+                Issue = "TR-2023-01",
+                Publisher = "NASA",
+                PublicationDate = new PublicationDate{Year=2023,Day = 11,Month = 1},
+                Contributors = new List<Contributor> 
+                { 
+                    new Contributor { FirstName = "John", LastName = "Doe", Role = ContributorRole.Author } 
+                }
+            };
 
             // Act
-            var result = formatter.FormatBibliography(entries);
+            var result = _formatter.FormatBibliography(new[] { entry });
 
             // Assert
-            Assert.Contains("Doe, J., et al.", result);
+            // Expected: Doe, J. (2023). Annual Safety Report (TR-2023-01). NASA.
+            Assert.Contains("(TR-2023-01)", result);
+            Assert.Contains("NASA", result);
+        }
+
+        [Theory]
+        [InlineData(1, "Doe, J.")]
+        [InlineData(2, "Doe, J., & Smith, J.")]
+        [InlineData(3, "Doe, J., et al.")]
+        public void FormatAuthors_ShouldHandleDifferentCounts(int authorCount, string expectedStart)
+        {
+            // Arrange
+            var authors = new List<Contributor>();
+            for (int i = 0; i < authorCount; i++)
+            {
+                authors.Add(new Contributor 
+                { 
+                    FirstName = i == 0 ? "John" : "Jane", 
+                    LastName = i == 0 ? "Doe" : "Smith", 
+                    Role = ContributorRole.Author 
+                });
+            }
+
+            var entry = new BibliographyEntry
+            {
+                SourceType = SourceType.Book,
+                Title = "Testing Authors",
+                Contributors = authors,
+                PublicationDate = new PublicationDate{Year = 2020,Day = 24,Month = 4},
+            };
+
+            // Act
+            var result = _formatter.FormatBibliography(new[] { entry });
+
+            // Assert
+            Assert.StartsWith(expectedStart, result);
         }
 
         #endregion
