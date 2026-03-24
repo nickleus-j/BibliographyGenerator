@@ -15,42 +15,33 @@
     </Window.DataContext>
     <DockPanel Margin="5">
         <ScrollViewer DockPanel.Dock="Left" FontFamily="Century Gothic">
-            <StackPanel>
-                <ListBox ItemsSource="{Binding Entries}" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True" x:Name="ReferenceList">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <WrapPanel>
-                                <Label Content="{Binding Title}" Padding="5"/>
-                                <Label Content="{Binding SourceType}" Padding="5"/>
-                            </WrapPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <GroupBox Header="Entries">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Margin="5"/>
-                        <Button Content="Update Entry" Command="{Binding UpdateEntryCommand}" Margin="5"/>
-                        <Button Content="Remove Selected" Command="{Binding RemoveSelectedEntryCommand}" Margin="5"/>
-                    </StackPanel>
-                </GroupBox>
-                <local:BibliographyEntryControl DataContext="{Binding ElementName=ReferenceList, Path=SelectedItem}"/>
-            </StackPanel>
+            
+            <local:BibliographyEntryControl DataContext="{Binding ElementName=ReferenceList, Path=SelectedItem}"/>
         </ScrollViewer>
         <ScrollViewer DockPanel.Dock="Right" Margin="3">
             <StackPanel>
-                <WrapPanel>
-                    <!-- List Section -->
-                    <GroupBox Header="Bibliography Entries" Grid.Row="0" Grid.Column="1" Margin="5" FontFamily="Consolas" FontSize="14">
-                        <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="200"/>
-                                <DataGridTextColumn Header="Source Type" Binding="{Binding SourceType}" Width="100"/>
-                                <DataGridTextColumn Header="Year" Binding="{Binding PublicationDate.Year}" Width="60"/>
-                                <DataGridTextColumn Header="Contributors" Binding="{Binding Contributors.Count}" Width="80"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </GroupBox>
-                </WrapPanel>
+                <!-- List Section -->
+                <GroupBox Header="Bibliography Entries" Grid.Row="0" Grid.Column="1" Margin="5" FontFamily="Consolas" FontSize="14">
+                    <StackPanel>
+                        <ListBox ItemsSource="{Binding Entries}" MinWidth="50" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True" x:Name="ReferenceList">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <WrapPanel>
+                                        <Label Content="{Binding Title}" Padding="5"/>
+                                        <Label Content="{Binding SourceType}" Padding="5"/>
+                                    </WrapPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <GroupBox Header="Entries">
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Margin="5"/>
+                                <Button Content="Update Entry" Command="{Binding UpdateEntryCommand}" Margin="5"/>
+                                <Button Content="Remove Selected" Command="{Binding RemoveSelectedEntryCommand}" Margin="5"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </GroupBox>
                 <WrapPanel>
                     <Label Content="Citation Style:" Width="80"/>
                     <ComboBox ItemsSource="{Binding Source={x:Static local:CitationStyleEnumValues.All}}" SelectedItem="{Binding CitationStyle}" Width="150" FontFamily="Segoe UI Semibold" FontSize="14"/>
