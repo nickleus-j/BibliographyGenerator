@@ -110,7 +110,9 @@ public class AuthorNameParser
         return $"{surname}, {initials}.";
     }
 }
-
+/// <summary>
+/// Author Name. Cotains full name, given name and surname
+/// </summary>
 public class AuthorName
 {
     public string FullName { get; set; }

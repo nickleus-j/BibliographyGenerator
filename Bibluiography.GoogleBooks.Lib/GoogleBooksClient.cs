@@ -9,21 +9,21 @@ using Newtonsoft.Json;
 namespace Bibluiography.GoogleBooks.Lib;
 public class GoogleBooksClient
 {
-    private string ApplicationName ;
-    private string ApiKey ;
+    private string _applicationName ;
+    private string _apiKey ;
 
     public GoogleBooksClient(string appName, string apiKey)
     {
-        ApplicationName = appName;
-        ApiKey = apiKey;
+        _applicationName = appName;
+        _apiKey = apiKey;
     }
     public async Task<Volume> SearchTitle(string isbn)
     {
         BooksService service = new BooksService(
             new BaseClientService.Initializer
             {
-                ApplicationName = ApplicationName,
-                ApiKey = ApiKey,
+                ApplicationName = _applicationName,
+                ApiKey = _apiKey,
             });
         try
         {
@@ -52,10 +52,10 @@ public class GoogleBooksClient
     {
         try
         {
-            if (string.IsNullOrEmpty(ApiKey))
+            if (string.IsNullOrEmpty(_apiKey))
                 throw new InvalidOperationException("API key not configured. Please set it in settings.");
 
-            string url = $"{ApiUrl}?q=isbn:{isbn}&key={ApiKey}";
+            string url = $"{ApiUrl}?q=isbn:{isbn}&key={_apiKey}";
             _httpClient.Timeout = TimeSpan.FromSeconds(10);
 
             using HttpResponseMessage response = await _httpClient.GetAsync(url);

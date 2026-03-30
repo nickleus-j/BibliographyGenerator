@@ -33,7 +33,6 @@ namespace Bibliography.Lib.Parsers
                     System.Diagnostics.Debug.WriteLine($"Error parsing BibTeX entry: {ex.Message}");
                 }
             }
-
             return entries;
         }
 
