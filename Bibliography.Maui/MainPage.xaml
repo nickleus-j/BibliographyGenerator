@@ -11,7 +11,7 @@
                         Margin="16,0">
             
             <CollectionView.Header>
-                <VerticalStackLayout Spacing="16" Padding="0,16,0,16">
+                <VerticalStackLayout Spacing="16" Padding="0,16,0,16" x:Name="TopStack">
                     
                     <VerticalStackLayout Spacing="4" Margin="0,0,0,8">
                         <Label Text="Bibliography Generator" 
@@ -23,18 +23,28 @@
                                TextColor="{AppThemeBinding Light=#555, Dark=#A0A0A0}"/>
                     </VerticalStackLayout>
 
-                    <FlexLayout Direction="Row" 
-                                Wrap="Wrap" 
-                                JustifyContent="SpaceBetween"
-                                AlignItems="Stretch">
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="8" Margin="0,0,0,8">
+                        <RadioButton x:Name="TabBibTex" 
+                                     GroupName="InputTabs" 
+                                     Content="BibTeX Input" 
+                                     IsChecked="True"
+                                     Grid.Column="0" />
+                                     
+                        <RadioButton x:Name="TabIsbn" 
+                                     GroupName="InputTabs" 
+                                     Content="Quick Add (ISBN)" 
+                                     Grid.Column="1" />
+                    </Grid>
 
-                        <Border StrokeShape="RoundRectangle 12" 
+                    <Grid>
+                        
+                        <Border x:Name="BibTexContainer"
+                                IsVisible="{Binding IsChecked, Source={x:Reference TabBibTex}}"
+                                StrokeShape="RoundRectangle 12" 
                                 Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}" 
                                 BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
                                 Padding="16"
-                                Margin="0,0,0,16"
-                                FlexLayout.Basis="100%"
-                                FlexLayout.Grow="1">
+                                Margin="0,0,0,16">
                             
                             <VerticalStackLayout Spacing="12">
                                 <Label Text="BibTeX Input" FontAttributes="Bold" FontSize="16"/>
@@ -49,13 +59,13 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <Border StrokeShape="RoundRectangle 10" 
+                        <Border x:Name="IsbnContainer"
+                                IsVisible="{Binding IsChecked, Source={x:Reference TabIsbn}}"
+                                StrokeShape="RoundRectangle 10" 
                                 Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}" 
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                                BackgroundColor="{AppThemeBinding Light=#fafcfb, Dark=#1E1E1E}"
                                 Padding="16"
-                                Margin="0,0,0,16"
-                                FlexLayout.Basis="100%"
-                                FlexLayout.Grow="1">
+                                Margin="0,0,0,16">
                             
                             <VerticalStackLayout Spacing="12">
                                 <Label Text="Quick Add (Google Books)"  FontSize="16"/>
@@ -86,7 +96,8 @@
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </Border>
-                    </FlexLayout>
+                        
+                    </Grid>
 
                     <Label Text="Bibliography Entries" FontAttributes="Bold" FontSize="18" Margin="0,8,0,0"/>
 
