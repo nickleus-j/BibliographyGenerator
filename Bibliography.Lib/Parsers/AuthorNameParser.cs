@@ -115,9 +115,9 @@ public class AuthorNameParser
 /// </summary>
 public class AuthorName
 {
-    public string FullName { get; set; }
-    public string FirstNames { get; set; }
-    public string Surname { get; set; }
+    public string? FullName { get; set; }
+    public string? FirstNames { get; set; }
+    public string? Surname { get; set; }
 
     public override string ToString()
     {

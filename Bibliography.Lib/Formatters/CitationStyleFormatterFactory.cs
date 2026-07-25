@@ -2,9 +2,9 @@ using Bibliography.Lib.Models;
 
 namespace Bibliography.Lib.Formatters;
 
-public class CitationStyleFormatterFactory
+public static class CitationStyleFormatterFactory
 {
-    private static readonly Dictionary<CitationStyle, IBibliographyStyleFormatter> _formatters =
+    private static readonly Dictionary<CitationStyle, IBibliographyStyleFormatter> Formatters =
         new Dictionary<CitationStyle, IBibliographyStyleFormatter>
         {
             { CitationStyle.APA, new ApaBiblioFormatter() },
@@ -16,7 +16,7 @@ public class CitationStyleFormatterFactory
 
     public static IBibliographyStyleFormatter GetFormatter(CitationStyle style)
     {
-        if (_formatters.TryGetValue(style, out var formatter))
+        if (Formatters.TryGetValue(style, out var formatter))
         {
             return formatter;
         }
