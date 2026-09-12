@@ -1,0 +1,73 @@
+name: MAUI Build (Windows & Android)
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows App
+    runs-on: windows-2022
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Install MAUI Workload
+      run: dotnet workload install maui --ignore-failed-sources
+
+    - name: Restore dependencies
+      run: dotnet restore Bibliography.Maui/Bibliography.Maui.csproj
+
+    - name: Build Windows
+      # Updated to net10.0-windows
+      run: dotnet publish Bibliography.Maui/Bibliography.Maui.csproj -f net10.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
+
+    - name: Upload Windows Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: Bibliography.Maui/bin/Release/net10.0-windows10.0.19041.0/win10-x64/publish/
+
+  build-android:
+    name: Generate Android APK
+    runs-on: windows-2022
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Install MAUI Workload
+      run: dotnet workload install maui --ignore-failed-sources
+
+    - name: Restore dependencies
+      run: dotnet restore Bibliography.Maui/Bibliography.Maui.csproj
+
+    - name: Build Android APK
+      # Updated to net10.0-android
+      run: dotnet publish Bibliography.Maui/Bibliography.Maui.csproj -f net10.0-android -c Release -p:AndroidPackageFormat=apk
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk
+        path: Bibliography.Maui/bin/Release/net10.0-android/**/*.apk

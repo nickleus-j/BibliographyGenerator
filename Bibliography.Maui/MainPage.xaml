@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Bibliography.Maui.MainPage"
              BackgroundColor="{AppThemeBinding Light=#F5F6F8, Dark=#121212}">
-
     <Grid RowDefinitions="*">
         
         <CollectionView x:Name="BibliographyGrid"
                         SelectionMode="Single"
-                        Margin="16,0">
+                        Margin="15,0">
             
             <CollectionView.Header>
                 <VerticalStackLayout Spacing="16" Padding="0,16,0,16" x:Name="TopStack">
